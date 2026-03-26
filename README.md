@@ -58,8 +58,13 @@ This repository contains the basic configuration to run Symfony applications wit
     ```
 6. Once you have installed you Symfony application go to http://localhost:1000
 
+ 7. install phpstan y phpat
+    ```sh
+    make composer-require PACKAGE=phpstan/phpstan DEV=true
+    make composer-require PACKAGE=phpat/phpat DEV=true
+    ```
 
-7. Add the next commands to composer.json
+8. Add the next commands to composer.json
     ```json
         "analyze:standards": [
             "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src --dry-run --verbose --show-progress=dots"
@@ -70,12 +75,6 @@ This repository contains the basic configuration to run Symfony applications wit
         "analyze:phpstan": [
             "vendor/bin/phpstan analyse -c phpstan.dist.neon"
         ]
-    ```
-
- 8. install phpstan y phpat
-    ```sh
-    composer require --dev phpstan/phpstan
-    composer require --dev phpat/phpat
     ```
 
 ## Pre-commit hooks

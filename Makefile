@@ -37,7 +37,16 @@ logs: ## Show Symfony logs in real time
 # Backend commands
 composer-install: ## Installs composer dependencies
 	U_ID=${UID} docker exec --user ${UID} ${DOCKER_BE} composer install --no-interaction
+	
+composer-require: ## Installs a composer dependency. Usage: make composer-require PACKAGE=vendor/package [DEV=true]
+	$(if $(PACKAGE),,$(error PACKAGE is required. Usage: make composer-require PACKAGE=vendor/package))
+	U_ID=${UID} docker exec --user ${UID} ${DOCKER_BE} composer require $(if $(filter true,$(DEV)),--dev )$(PACKAGE) --no-interaction
 # End backend commands
+
+make-module: ## Creates a hexagonal module under src/. Usage: make make-module NAME=ModuleName
+	$(if $(NAME),,$(error NAME is required. Usage: make make-module NAME=ModuleName))
+	mkdir -p src/$(NAME)/Application src/$(NAME)/Domain src/$(NAME)/Infrastructure
+	@echo "Module '$(NAME)' created at src/$(NAME)/ with Application, Domain and Infrastructure layers."
 
 ssh: ## bash into the be container
 	U_ID=${UID} docker exec -it --user ${UID} ${DOCKER_BE} bash
