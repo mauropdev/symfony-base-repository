@@ -25,6 +25,8 @@ build: ## Rebuilds all the containers
 
 prepare: ## Runs backend commands
 	$(MAKE) composer-install
+	$(MAKE) cs-install
+	$(MAKE) install-hooks
 
 run: ## starts the Symfony development server in detached mode
 	U_ID=${UID} docker exec -it --user ${UID} ${DOCKER_BE} symfony serve -d
@@ -39,3 +41,21 @@ composer-install: ## Installs composer dependencies
 
 ssh: ## bash into the be container
 	U_ID=${UID} docker exec -it --user ${UID} ${DOCKER_BE} bash
+
+# Git hooks
+install-hooks: ## Configure git to use .githooks/
+	git config core.hooksPath .githooks
+	chmod +x .githooks/pre-commit
+
+# Code quality
+cs-install: ## Install PHP CS Fixer dependencies
+	cd tools/php-cs-fixer && composer install --no-interaction
+
+cs-fix: ## Run PHP CS Fixer (fix mode)
+	tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src --verbose --show-progress=dots
+
+cs-check: ## Run PHP CS Fixer (dry-run mode)
+	tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src --dry-run --diff --verbose --show-progress=dots
+
+phpstan: ## Run PHPStan static analysis
+	U_ID=${UID} docker exec --user ${UID} ${DOCKER_BE} vendor/bin/phpstan analyse -c phpstan.dist.neon

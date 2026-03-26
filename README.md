@@ -11,9 +11,12 @@ This repository contains the basic configuration to run Symfony applications wit
 - `make start` to start the containers
 - `make stop` to stop the containers
 - `make restart` to restart the containers
-- `make prepare` to install dependencies with composer (once the project has been created)
+- `make prepare` to install dependencies and configure git hooks (once the project has been created)
 - `make logs` to see application logs
 - `make ssh` to SSH into the application container
+- `make cs-fix` to fix code style issues automatically
+- `make cs-check` to check code style without making changes
+- `make phpstan` to run PHPStan static analysis
 
 ## Create and Run the application
 > [!TIP]
@@ -54,3 +57,43 @@ This repository contains the basic configuration to run Symfony applications wit
     ###< symfony/framework-bundle ###
     ```
 6. Once you have installed you Symfony application go to http://localhost:1000
+
+
+7. Add the next commands to composer.json
+    ```json
+        "analyze:standards": [
+            "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src --dry-run --verbose --show-progress=dots"
+        ],
+        "fix:standards": [
+            "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix src --verbose --show-progress=dots"
+        ],
+        "analyze:phpstan": [
+            "vendor/bin/phpstan analyse -c phpstan.dist.neon"
+        ]
+    ```
+
+ 8. install phpstan y phpat
+    ```sh
+    composer require --dev phpstan/phpstan
+    composer require --dev phpat/phpat
+    ```
+
+## Pre-commit hooks
+
+This project includes a pre-commit hook that runs automatically before each commit to enforce code quality.
+
+**What it checks:**
+- **PHP CS Fixer** — verifies code style on staged PHP files under `src/`
+- **PHPStan** — runs static analysis (when `vendor/bin/phpstan` is available)
+
+The hook is installed automatically when you run `make prepare`. To install it manually:
+
+```shell
+make install-hooks
+```
+
+If PHP CS Fixer reports issues, fix them with:
+
+```shell
+make cs-fix
+```
